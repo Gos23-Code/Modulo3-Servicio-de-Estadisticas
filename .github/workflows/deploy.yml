@@ -25,8 +25,8 @@ jobs:
 
       - name: Zip Lambda CORRECTLY
         run: |
-          cd dist
-          zip -r ../deployment.zip *  # Esto pone los archivos directamente en la raíz del zip
+         npm run build
+         zip -r ../deployment.zip dist node_modules package.json
 
       - name: Verify zip structure
         run: |
