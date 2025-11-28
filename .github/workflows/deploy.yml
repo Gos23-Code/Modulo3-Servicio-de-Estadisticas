@@ -26,11 +26,11 @@ jobs:
       - name: Zip Lambda CORRECTLY
         run: |
           cd dist
-          zip ../bundle.zip *  # Esto pone los archivos directamente en la raíz del zip
+          zip ../deployment.zip *  # Esto pone los archivos directamente en la raíz del zip
 
       - name: Verify zip structure
         run: |
-          unzip -l bundle.zip
+          unzip -l deployment.zip
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
