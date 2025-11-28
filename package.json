@@ -1,0 +1,23 @@
+{
+  "name": "url-shortener-stats",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.940.0",
+    "@aws-sdk/lib-dynamodb": "^3.940.0",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@aws-sdk/types": "^3.936.0",
+    "@types/aws-lambda": "^8.10.159",
+    "@types/aws-sdk": "^2.7.4",
+    "@types/node": "^24.10.1"
+  }
+}

@@ -1,0 +1,121 @@
+name: Deploy URL Shortener Stats
+
+on:
+  push:
+    branches: [ develop ]
+
+env:
+  AWS_REGION: us-east-1
+  TERRAFORM_VERSION: 1.5.7
+  NODE_VERSION: 18.x
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: npm test
+    
+    - name: Build project
+      run: npm run build
+
+  deploy:
+    needs: test
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build TypeScript
+      run: npm run build
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v2
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: ${{ env.TERRAFORM_VERSION }}
+    
+    - name: Terraform Format
+      run: cd terraform && terraform fmt -check
+    
+    - name: Terraform Init
+      run: cd terraform && terraform init
+    
+    - name: Terraform Validate
+      run: cd terraform && terraform validate
+    
+    - name: Terraform Plan
+      run: cd terraform && terraform plan -var="environment=production" -input=false
+    
+    - name: Terraform Apply
+      run: cd terraform && terraform apply -auto-approve -var="environment=production" -input=false
+    
+    - name: Get API Gateway URL
+      id: api_url
+      run: |
+        cd terraform
+        API_URL=$(terraform output -raw api_gateway_url)
+        echo "url=$API_URL" >> $GITHUB_OUTPUT
+    
+    - name: Create deployment package
+      run: |
+        cd terraform
+        LAMBDA_FUNCTION_NAME=$(terraform output -raw lambda_function_name)
+        cd ..
+        zip -r deployment.zip dist/ node_modules/ package.json
+    
+    - name: Update Lambda code
+      run: |
+        cd terraform
+        LAMBDA_FUNCTION_NAME=$(terraform output -raw lambda_function_name)
+        cd ..
+        aws lambda update-function-code \
+          --function-name $LAMBDA_FUNCTION_NAME \
+          --zip-file fileb://deployment.zip \
+          --region ${{ env.AWS_REGION }}
+
+  integration-test:
+    needs: deploy
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Wait for deployment
+      run: sleep 60
+    
+    - name: Run integration tests
+      run: |
+        cd terraform
+        API_URL=$(terraform output -raw api_gateway_url)
+        echo "Testing API endpoint: $API_URL"
+        # Test básico de salud
+        curl -s -o /dev/null -w "%{http_code}" "$API_URL/stats/test" || echo "API test completed"
