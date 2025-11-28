@@ -26,7 +26,7 @@ jobs:
       - name: Zip Lambda CORRECTLY
         run: |
          npm run build
-         zip -r ../deployment.zip dist node_modules package.json
+         zip -r deployment.zip dist node_modules package.json
 
       - name: Verify zip structure
         run: |
