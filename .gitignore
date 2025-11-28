@@ -1,75 +1,65 @@
-# Dependencies
+# ===========================
+# Node / TypeScript
+# ===========================
+
 node_modules/
+dist/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.pnpm-debug.log*
 
-# Build outputs
-dist/
-build/
-*.tgz
-*.tar.gz
-
-# Terraform
-**/.terraform/
-*.tfstate
-*.tfstate.*
-*.tfvars
-.terraform.lock.hcl
-terraform.tfstate.backup
-
-# Environment variables
-.env
-.env.local
-.env.production
-.env.development
-
-# IDE and editor files
-.vscode/
-.idea/
-*.swp
-*.swo
-*~
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
-
-# Serverless framework
-.serverless/
-.webpack/
-
-# Logs
-logs/
-*.log
-
-# Coverage
-coverage/
-.nyc_output/
-
-# Runtime data
-pids/
-*.pid
-*.seed
-*.pid.lock
-
-# Optional npm cache directory
-.npm
-
-# Optional REPL history
-.node_repl_history
-
-# Deployment artifacts
-deployment.zip
-!terraform/deployment.zip  # ⭐ EXCEPCIÓN: Mantener el .zip en terraform/ para GitHub Actions
-
-# TypeScript
+# TS build cache
 *.tsbuildinfo
 
-# AWS
-.aws-sam/
+# ===========================
+# AWS Lambda Bundles
+# ===========================
+
+bundle.zip
+temp_bundle/
+
+# ===========================
+# Environment Variables
+# ===========================
+
+.env
+.env.local
+.env.*.local
+
+# ===========================
+# GitHub Actions
+# ===========================
+
+# (Nothing special here unless you generate artifacts)
+*.zip
+
+# ===========================
+# Terraform
+# ===========================
+
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/crash.log
+terraform/*.tfvars
+terraform/*.tfvars.json
+
+# Sensitive auto-generated
+terraform/.terraform.tfstate.lock.info
+
+# ===========================
+# VSCode
+# ===========================
+
+.vscode/
+*.code-workspace
+
+# ===========================
+# OS Files
+# ===========================
+
+.DS_Store
+Thumbs.db
